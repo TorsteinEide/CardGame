@@ -23,4 +23,9 @@ public class DeckOfCards
             System.out.println(index);
         }
     }
+
+    public void dealHand(int n)
+    {
+
+    }
 }
