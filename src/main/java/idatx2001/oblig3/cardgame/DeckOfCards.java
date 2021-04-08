@@ -1,12 +1,16 @@
-package idatx2001.oblig3.cardgame.model;
+package idatx2001.oblig3.cardgame;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
  * This class represents a deck of cards
  * where cards are "stored"
+ *
+ * @author Torstein Eide
+ * @version 0.1
  */
 public class DeckOfCards
 {
@@ -47,26 +51,20 @@ public class DeckOfCards
     }
 
     /**
-     * Creates a string with information about the queen of spades
-     * returns a string with information regarding queen of spades
-     * @return a string with information regarding queen of spades
+     * returns a boolean value true if queen is in hand, false if not
+     * @return a boolean value true if queen is in hand, false if not
      */
     public boolean checkForQueenOfSpades()
     {
         boolean queenOfSpades = false;
-        boolean searching = true;
-        Iterator<PlayingCard> it = collection.iterator();
+        List<PlayingCard> list = this.collection.stream()
+                .filter(playingCard -> playingCard.getSuit() == 'S')
+                .filter(playingCard -> playingCard.getFace() == 12)
+                .collect(Collectors.toList());
 
-        while(it.hasNext() && searching)
+        if(!list.isEmpty())
         {
-            PlayingCard card = it.next();
-            if(card.getAsString().equalsIgnoreCase("S11"))
-            {
-                queenOfSpades = true;
-                searching = false;
-            } else {
-                queenOfSpades = false;
-            }
+            queenOfSpades = true;
         }
 
         return queenOfSpades;
@@ -103,12 +101,23 @@ public class DeckOfCards
      */
     public int getHandSum()
     {
+        /**
         int sum = 0;
 
         for(PlayingCard pc : collection)
         {
             sum += pc.getFace();
         }
+
+        return sum;
+         **/
+
+
+        Integer face = collection.stream()
+                .map(card -> card.getFace())
+                .reduce(0,(a,b) -> a + b);
+
+        int sum = Integer.valueOf(face);
 
         return sum;
     }
@@ -136,6 +145,20 @@ public class DeckOfCards
     }
 
     /**
+     * Gives cards on hand back to the deck
+     */
+    public void resetCardsOnHand()
+    {
+        while(collection.size() > 0){
+            int index = 0;
+            collection.remove(index);
+            index++;
+        }
+
+        new DeckOfCards();
+    }
+
+    /**
      * Picks a random card from the deck of cards to be added to a collection of random cards
      * Does not allow duplicate cards to be picked
      * @param n number of cards to be picked
@@ -148,8 +171,11 @@ public class DeckOfCards
         {
             for (int index = 0; index < n; index++) {
                 PlayingCard card = deckOfCards.get(random.nextInt(deckOfCards.size()));
-                collection.add(card); // Adds the random card to collection
-                deckOfCards.remove(card); // Removes the random card from the deck
+
+                if(!collection.contains(card)){
+                    collection.add(card); // Adds the random card to collection
+                }
+
             }
         } else {
             throw new IllegalArgumentException("Cannot draw more cards than the deck holds..");
@@ -163,7 +189,15 @@ public class DeckOfCards
      */
     public String getHandCard(int index)
     {
-        String handCard = collection.get(index).getAsString();
+        String handCard = "";
+        if(collection.isEmpty()) {
+            throw new IllegalArgumentException("There are no cards in the deck..");
+        } else if(index >= 0 && index < collection.size()){
+            handCard = collection.get(index).getAsString();
+        } else {
+            throw new IllegalArgumentException("There are no cards tied to this index..");
+        }
+        System.out.println(handCard);
         return handCard;
     }
 
@@ -181,7 +215,7 @@ public class DeckOfCards
      */
     public String doFlushCheck() {
         String flushInfo = "";
-        long HighestNumberOfSameSuit = collection
+        long SameSuit = collection
                 .stream()
                 .map((PlayingCard card) -> card.getSuit())
                 .collect(Collectors.groupingBy((Character c) -> c.charValue(), Collectors.counting()))
@@ -190,20 +224,21 @@ public class DeckOfCards
                 .reduce(Math::max)
                 .get();
 
-        if (HighestNumberOfSameSuit >= 5) {
+        if (SameSuit >= 5) {
 
-            flushInfo = "Flush!";
+            flushInfo = "FLUSH!";
         } else {
-            flushInfo = "Unfortunately no flush..";
+            flushInfo = "No flush..";
         }
         return flushInfo;
     }
 
     public static void main(String[] args) {
         DeckOfCards dc = new DeckOfCards();
-        dc.dealHand(5);
+        dc.dealHand(3);
         dc.showHand();
-        dc.checkForQueenOfSpades();
+        System.out.println("");
+        System.out.println(dc.getHandSum());
 
     }
 }

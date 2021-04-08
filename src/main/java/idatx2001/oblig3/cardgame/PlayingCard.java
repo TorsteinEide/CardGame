@@ -1,4 +1,4 @@
-package idatx2001.oblig3.cardgame.model;
+package idatx2001.oblig3.cardgame;
 
 /**
  * Represents a playing card. A playing card has a number (face) between
